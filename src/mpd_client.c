@@ -577,7 +577,7 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
         char *tmppath = NULL;
         char *searchoption_ARTIST = NULL;
         char *searchoption_ALBUM = NULL;
-        tmppath = strdup(tmppath, path)
+        tmppath = strdup(path);
         searchoption = strtok(tmppath,delim);//first entry is artist/album so not interesting
         if (searchoption != NULL) {
           free(searchoption);
