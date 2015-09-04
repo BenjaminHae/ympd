@@ -574,9 +574,10 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
           type_librarystart = MPD_TAG_ALBUM;
         const char delim[2] = "/";
         char *searchoption = NULL;
-        char *tmppath = strdup(tmppath, path);
+        char *tmppath = NULL;
         char *searchoption_ARTIST = NULL;
         char *searchoption_ALBUM = NULL;
+        tmppath = strdup(tmppath, path)
         searchoption = strtok(tmppath,delim);//first entry is artist/album so not interesting
         if (searchoption != NULL) {
           free(searchoption);
@@ -632,8 +633,6 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
           
           mpd_return_pair(mpd.conn, pair);
         }
-        free(path1);
-        free(path2);
         
         if (mpd_connection_get_error(mpd.conn) != MPD_ERROR_SUCCESS || !mpd_response_finish(mpd.conn)) {
             fprintf(stderr, "MPD mpd_send_list_meta: %s\n", mpd_connection_get_error_message(mpd.conn));
