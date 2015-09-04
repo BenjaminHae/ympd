@@ -300,9 +300,9 @@ function webSocketConnect() {
                                 break;
                             case "meta":
                                 $('#salamisandwich > tbody').append(
-                                    "<tr uri=\"" + encodeURI(obj.data[item].dir) + "\" class=\"dir\">" +
+                                    "<tr uri=\"" + encodeURI(obj.data[item].metatype) + "\" class=\"dir\">" +
                                     "<td><span class=\"glyphicon glyphicon-folder-open\"></span></td>" +
-                                    "<td><a>" + basename(obj.data[item].dir) + "</a></td>" +
+                                    "<td><a>" + basename(obj.data[item].metatype) + "</a></td>" +
                                     "<td></td><td></td></tr>"
                                 );
                                 break;
