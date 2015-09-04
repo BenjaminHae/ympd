@@ -556,8 +556,8 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
           mpd_search_add_tag_constraint(mpd.conn, MPD_OPERATOR_DEFAULT,MPD_TAG_ALBUM,searchoption_ALBUM);
         }
         fprintf(stderr, "I'm here 559");
-        free(searchoption_ARTIST);
-        free(searchoption_ALBUM);
+        //free(searchoption_ARTIST);
+        //free(searchoption_ALBUM);
 
         if (!mpd_search_commit(mpd.conn))
             fprintf(stderr, "MPD mpd_search_commit: %s\n", mpd_connection_get_error_message(mpd.conn));
