@@ -518,31 +518,34 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
         tmppath = strdup(path);
         searchoption = strtok(tmppath,delim);//first entry is artist/album so not interesting
         if (searchoption != NULL) {
-          fprintf(stderr, "I'm here 521");
           free(searchoption);
-          fprintf(stderr, "I'm here 523");
           searchoption = strtok(tmppath,delim);
-          if (searchoption!=NULL) {
-            fprintf(stderr, "I'm here 526");
-            if (type_librarystart == MPD_TAG_ARTIST) {
-              searchoption_ARTIST = searchoption;
-              type_output = MPD_TAG_ALBUM;
-            }
-            else {
-              searchoption_ALBUM = searchoption;
-              type_output = MPD_TAG_ARTIST;
-            }
-            fprintf(stderr, "I'm here 535");
+          if (searchoption != NULL)
+          {
+            free(searchoption);
             searchoption = strtok(tmppath,delim);
-            fprintf(stderr, "I'm here 537");
-            if (searchoption!=NULL){
-              if (type_librarystart == MPD_TAG_ALBUM) {
+            if (searchoption!=NULL) {
+              fprintf(stderr, "I'm here 526");
+              if (type_librarystart == MPD_TAG_ARTIST) {
                 searchoption_ARTIST = searchoption;
+                type_output = MPD_TAG_ALBUM;
               }
               else {
                 searchoption_ALBUM = searchoption;
+                type_output = MPD_TAG_ARTIST;
               }
-              type_output = MPD_TAG_UNKNOWN;
+              fprintf(stderr, "I'm here 535");
+              searchoption = strtok(tmppath,delim);
+              fprintf(stderr, "I'm here 537");
+              if (searchoption!=NULL){
+                if (type_librarystart == MPD_TAG_ALBUM) {
+                  searchoption_ARTIST = searchoption;
+                }
+                else {
+                  searchoption_ALBUM = searchoption;
+                }
+                type_output = MPD_TAG_UNKNOWN;
+              }
             }
           }
         }
