@@ -581,10 +581,7 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
         struct mpd_pair *pair;
         while ((pair = mpd_recv_pair_tag(mpd.conn, type)) != NULL) {
           cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"artist\",\"name\":");
-          char * output;
-          strcpy(output, path);
-          strcat(output, pair->value);
-          cur += json_emit_quoted_str(cur, end - cur, output);
+          cur += json_emit_quoted_str(cur, end - cur, pair->value);
           cur += json_emit_raw_str(cur, end - cur, "},");
           
           mpd_return_pair(mpd.conn, pair);
