@@ -566,9 +566,15 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
 
     if (!mpd_send_list_meta(mpd.conn, path))
         RETURN_ERROR_AND_RECOVER("mpd_send_list_meta");
-
     cur += json_emit_raw_str(cur, end  - cur, "{\"type\":\"browse\",\"data\":[ ");
-
+    if(strcmp(path, "/") == 0) {
+        cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"meta\",\"artist\":");
+        cur += json_emit_quoted_str(cur, end - cur, "Artists");
+        cur += json_emit_raw_str(cur, end - cur, "},");
+        cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"meta\",\"album\":");
+        cur += json_emit_quoted_str(cur, end - cur, "Album");
+        cur += json_emit_raw_str(cur, end - cur, "},");
+    }
     while((entity = mpd_recv_entity(mpd.conn)) != NULL) {
         const struct mpd_song *song;
         const struct mpd_directory *dir;
@@ -621,14 +627,6 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
         }
         mpd_entity_free(entity);
         entity_count++;
-    }
-    if(strcmp(path, "/") == 0) {
-        cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"meta\",\"artist\":");
-        cur += json_emit_quoted_str(cur, end - cur, "Artists");
-        cur += json_emit_raw_str(cur, end - cur, "},");
-        cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"meta\",\"album\":");
-        cur += json_emit_quoted_str(cur, end - cur, "Album");
-        cur += json_emit_raw_str(cur, end - cur, "},");
     }
     if (mpd_connection_get_error(mpd.conn) != MPD_ERROR_SUCCESS || !mpd_response_finish(mpd.conn)) {
         fprintf(stderr, "MPD mpd_send_list_meta: %s\n", mpd_connection_get_error_message(mpd.conn));
