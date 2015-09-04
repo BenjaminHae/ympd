@@ -557,13 +557,47 @@ int mpd_put_queue(char *buffer, unsigned int offset)
     return cur - buffer;
 }
 
+
 int mpd_put_browse(char *buffer, char *path, unsigned int offset)
 {
     char *cur = buffer;
     const char *end = buffer + MAX_SIZE;
     struct mpd_entity *entity;
     unsigned int entity_count = 0;
+    
+    if((strncmp(path, "Artist", strlen("Artist")) == 0) || (strncmp(path, "Album", strlen("Album")) == 0)) {
+        enum mpd_tag_type type = MPD_TAG_ARTIST;
+        mpd_search_db_tags(mpd.conn, type);
 
+        // if (argc > 0 && !add_constraints(argc, argv, conn))
+        //   return -1;
+
+        if (!mpd_search_commit(mpd.conn))
+            fprintf(stderr, "MPD mpd_search_commit: %s\n", mpd_connection_get_error_message(mpd.conn));
+            mpd.conn_state = MPD_FAILURE;
+
+        cur += json_emit_raw_str(cur, end  - cur, "{\"type\":\"browse\",\"data\":[ ");
+        struct mpd_pair *pair;
+        while ((pair = mpd_recv_pair_tag(mpd.conn, type)) != NULL) {
+          cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"artist\",\"name\":");
+          cur += json_emit_quoted_str(cur, end - cur, charset_from_utf8(pair->value));
+          cur += json_emit_raw_str(cur, end - cur, "},");
+          
+          mpd_return_pair(mpd.conn, pair);
+        }
+        
+        
+        if (mpd_connection_get_error(mpd.conn) != MPD_ERROR_SUCCESS || !mpd_response_finish(mpd.conn)) {
+            fprintf(stderr, "MPD mpd_send_list_meta: %s\n", mpd_connection_get_error_message(mpd.conn));
+            mpd.conn_state = MPD_FAILURE;
+            return 0;
+        }
+        /* remove last ',' */
+        cur--;
+
+        cur += json_emit_raw_str(cur, end - cur, "]}");
+        return cur-buffer;
+    }
     if (!mpd_send_list_meta(mpd.conn, path))
         RETURN_ERROR_AND_RECOVER("mpd_send_list_meta");
     cur += json_emit_raw_str(cur, end  - cur, "{\"type\":\"browse\",\"data\":[ ");
