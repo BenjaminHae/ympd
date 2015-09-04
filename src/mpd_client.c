@@ -529,7 +529,6 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
               searchoption_ALBUM = searchoption;
               type_output = MPD_TAG_ARTIST;
             }
-            free(searchoption);
             searchoption = strtok(tmppath,delim);
             if (searchoption!=NULL){
               if (type_librarystart == MPD_TAG_ALBUM) {
@@ -542,7 +541,6 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
             }
           }
         }
-        free(searchoption);
         free(tmppath);
         
         mpd_search_db_tags(mpd.conn, type_output);
