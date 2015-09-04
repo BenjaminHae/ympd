@@ -580,12 +580,12 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
         tmppath = strdup(path);
         searchoption = strtok(tmppath,delim);//first entry is artist/album so not interesting
         if (searchoption != NULL) {
-          printf(stderr, "I'm here 521");
+          fprintf(stderr, "I'm here 521");
           free(searchoption);
-          printf(stderr, "I'm here 523");
+          fprintf(stderr, "I'm here 523");
           searchoption = strtok(tmppath,delim);
           if (searchoption!=NULL) {
-            printf(stderr, "I'm here 526");
+            fprintf(stderr, "I'm here 526");
             if (type_librarystart == MPD_TAG_ARTIST) {
               searchoption_ARTIST = searchoption;
               type_output = MPD_TAG_ALBUM;
@@ -594,9 +594,9 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
               searchoption_ALBUM = searchoption;
               type_output = MPD_TAG_ARTIST;
             }
-            printf(stderr, "I'm here 535");
+            fprintf(stderr, "I'm here 535");
             searchoption = strtok(tmppath,delim);
-            printf(stderr, "I'm here 537");
+            fprintf(stderr, "I'm here 537");
             if (searchoption!=NULL){
               if (type_librarystart == MPD_TAG_ALBUM) {
                 searchoption_ARTIST = searchoption;
@@ -608,7 +608,7 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
             }
           }
         }
-        printf(stderr, "I'm here 549");
+        fprintf(stderr, "I'm here 549");
         free(tmppath);
         
         mpd_search_db_tags(mpd.conn, type_output);
@@ -618,7 +618,7 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
         if (searchoption_ALBUM!=NULL){
           mpd_search_add_tag_constraint(mpd.conn, MPD_OPERATOR_DEFAULT,MPD_TAG_ALBUM,searchoption_ALBUM);
         }
-        printf(stderr, "I'm here 559");
+        fprintf(stderr, "I'm here 559");
         free(searchoption_ARTIST);
         free(searchoption_ALBUM);
 
