@@ -300,9 +300,9 @@ function webSocketConnect() {
                                 break;
                             case "meta":
                                 if (obj.data[item].metatype == 'Album')
-                                  $icon='glyphicon-user';
-                                else
                                   $icon='glyphicon-record';
+                                else
+                                  $icon='glyphicon-user';
                                 $('#salamisandwich > tbody').append(
                                     "<tr uri=\"" + encodeURI(obj.data[item].metatype) + "\" class=\"dir\">" +
                                     "<td><span class=\"glyphicon " + $icon + "\"></span></td>" +
