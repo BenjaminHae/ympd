@@ -579,6 +579,7 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
         char *searchoption_ALBUM = NULL;
         searchoption = strtok(tmppath,delim);//first entry is artist/album so not interesting
         if (searchoption != NULL) {
+          free(searchoption);
           searchoption = strtok(tmppath,delim);
           if (searchoption!=NULL) {
             if (type_librarystart == MPD_TAG_ARTIST) {
@@ -589,6 +590,7 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
               searchoption_ALBUM = searchoption;
               type_output = MPD_TAG_ARTIST;
             }
+            free(searchoption);
             searchoption = strtok(tmppath,delim);
             if (searchoption!=NULL){
               if (type_librarystart == MPD_TAG_ALBUM) {
@@ -621,7 +623,7 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
 
         cur += json_emit_raw_str(cur, end  - cur, "{\"type\":\"browse\",\"data\":[ ");
         struct mpd_pair *pair;
-        while ((pair = mpd_recv_pair_tag(mpd.conn, type)) != NULL) {
+        while ((pair = mpd_recv_pair_tag(mpd.conn, type_output)) != NULL) {
           cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"artist\",\"name\":");
           cur += json_emit_quoted_str(cur, end - cur, pair->value);
           cur += json_emit_raw_str(cur, end - cur, ",\"path\":");
