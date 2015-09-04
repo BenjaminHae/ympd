@@ -237,7 +237,7 @@ function webSocketConnect() {
                                   $icon='glyphicon-record';
                                 $('#salamisandwich > tbody').append(
                                     "<tr uri=\"" + encodeURI(obj.data[item].metatype) + "\" class=\"dir\">" +
-                                    "<td><span class=\"glyphicon ".$icon."\"></span></td>" +
+                                    "<td><span class=\"glyphicon " + $icon + "\"></span></td>" +
                                     "<td><a>" + basename(obj.data[item].metatype) + "</a></td>" +
                                     "<td></td><td></td></tr>"
                                 );
