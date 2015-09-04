@@ -608,9 +608,8 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
             }
           }
         }
+        //free tmppath?
         fprintf(stderr, "I'm here 549");
-        free(tmppath);
-        
         mpd_search_db_tags(mpd.conn, type_output);
         if (searchoption_ARTIST!=NULL){
           mpd_search_add_tag_constraint(mpd.conn, MPD_OPERATOR_DEFAULT,MPD_TAG_ARTIST,searchoption_ARTIST);
