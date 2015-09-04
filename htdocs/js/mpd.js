@@ -230,6 +230,14 @@ function webSocketConnect() {
                                     );
                                 }
                                 break;
+                            case "meta":
+                                $('#salamisandwich > tbody').append(
+                                    "<tr uri=\"" + encodeURI(obj.data[item].dir) + "\" class=\"dir\">" +
+                                    "<td><span class=\"glyphicon glyphicon-folder-open\"></span></td>" +
+                                    "<td><a>" + basename(obj.data[item].dir) + "</a></td>" +
+                                    "<td></td><td></td></tr>"
+                                );
+                                break;
                         }
 
                         if(pagination > 0)
