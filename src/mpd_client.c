@@ -145,7 +145,7 @@ int callback_mpd(struct mg_connection *c)
 
             n = mpd_put_browse(mpd.buf, token, uint_buf);
 out_browse:
-			free(p_charbuf);
+            free(p_charbuf);
             break;
         case MPD_API_ADD_TRACK:
             p_charbuf = strdup(c->content);
@@ -622,7 +622,14 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
         mpd_entity_free(entity);
         entity_count++;
     }
-
+    if(strcmp(path, "/") == 0) {
+        cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"meta\",\"artist\":");
+        cur += json_emit_quoted_str(cur, end - cur, "Artists");
+        cur += json_emit_raw_str(cur, end - cur, "},");
+        cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"meta\",\"album\":");
+        cur += json_emit_quoted_str(cur, end - cur, "Album");
+        cur += json_emit_raw_str(cur, end - cur, "},");
+    }
     if (mpd_connection_get_error(mpd.conn) != MPD_ERROR_SUCCESS || !mpd_response_finish(mpd.conn)) {
         fprintf(stderr, "MPD mpd_send_list_meta: %s\n", mpd_connection_get_error_message(mpd.conn));
         mpd.conn_state = MPD_FAILURE;
