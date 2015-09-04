@@ -242,6 +242,14 @@ function webSocketConnect() {
                                     "<td></td><td></td></tr>"
                                 );
                                 break;
+                            case "artist":
+                                $('#salamisandwich > tbody').append(
+                                    "<tr uri=\"Artist/" + obj.data[item].name + "\" class=\"dir\">" +
+                                    "<td><span class=\"glyphicon glyphicon-folder-open\"></span></td>" +
+                                    "<td><a>" + obj.data[item].name + "</a></td>" +
+                                    "<td></td><td></td></tr>"
+                                );
+                                break;
                         }
 
                         if(pagination > 0)
