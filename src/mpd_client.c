@@ -504,25 +504,54 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
     unsigned int entity_count = 0;
     
     if((strncmp(path, "Artist", strlen("Artist")) == 0) || (strncmp(path, "Album", strlen("Album")) == 0)) {
-        enum mpd_tag_type type = MPD_TAG_ARTIST;
-        mpd_search_db_tags(mpd.conn, type);
+        enum mpd_tag_type type_librarystart = MPD_TAG_ARTIST;
+        enum mpd_tag_type type_output = MPD_TAG_ARTIST;
+        if (strncmp(path, "Artist", strlen("Artist")) == 0)
+          type_librarystart = MPD_TAG_ARTIST;
+        else
+          type_librarystart = MPD_TAG_ALBUM;
         const char delim[2] = "/";
-        char *searchoption;
-        char *tmppath;
-        strdup(tmppath, path);
-        searchoption = strtok(tmppath,delim);
+        char *searchoption = NULL;
+        char *tmppath = strdup(tmppath, path);
+        char *searchoption_ARTIST = NULL;
+        char *searchoption_ALBUM = NULL;
+        searchoption = strtok(tmppath,delim);//first entry is artist/album so not interesting
         if (searchoption != NULL) {
           searchoption = strtok(tmppath,delim);
-          if (searchoption!=NULL){
-            mpd_search_add_tag_constraint(mpd.conn, MPD_OPERATOR_DEFAULT,MPD_TAG_ARTIST,searchoption);
+          if (searchoption!=NULL) {
+            if (type_librarystart == MPD_TAG_ARTIST) {
+              searchoption_ARTIST = searchoption;
+              type_output = MPD_TAG_ALBUM;
+            }
+            else {
+              searchoption_ALBUM = searchoption;
+              type_output = MPD_TAG_ARTIST;
+            }
             searchoption = strtok(tmppath,delim);
             if (searchoption!=NULL){
-              mpd_search_add_tag_constraint(mpd.conn, MPD_OPERATOR_DEFAULT,MPD_TAG_ALBUM,searchoption);
+              if (type_librarystart == MPD_TAG_ALBUM) {
+                searchoption_ARTIST = searchoption;
+              }
+              else {
+                searchoption_ALBUM = searchoption;
+              }
+              type_output = MPD_TAG_UNKNOWN;
             }
           }
         }
         free(searchoption);
         free(tmppath);
+        
+        mpd_search_db_tags(mpd.conn, type_output);
+        if (searchoption_ARTIST!=NULL){
+          mpd_search_add_tag_constraint(mpd.conn, MPD_OPERATOR_DEFAULT,MPD_TAG_ARTIST,searchoption_ARTIST);
+        }
+        if (searchoption_ALBUM!=NULL){
+          mpd_search_add_tag_constraint(mpd.conn, MPD_OPERATOR_DEFAULT,MPD_TAG_ALBUM,searchoption_ALBUM);
+        }
+        
+        free(searchoption_ARTIST);
+        free(searchoption_ALBUM);
 
         if (!mpd_search_commit(mpd.conn))
             fprintf(stderr, "MPD mpd_search_commit: %s\n", mpd_connection_get_error_message(mpd.conn));
