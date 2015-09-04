@@ -566,7 +566,7 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
     unsigned int entity_count = 0;
     
     if((strncmp(path, "Artist", strlen("Artist")) == 0) || (strncmp(path, "Album", strlen("Album")) == 0)) {
-        path=strcat(path, "/")
+        path=strcat(path, "/");
         enum mpd_tag_type type = MPD_TAG_ARTIST;
         mpd_search_db_tags(mpd.conn, type);
 
