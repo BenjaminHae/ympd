@@ -506,10 +506,10 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
         RETURN_ERROR_AND_RECOVER("mpd_send_list_meta");
     cur += json_emit_raw_str(cur, end  - cur, "{\"type\":\"browse\",\"data\":[ ");
     if(strcmp(path, "/") == 0) {
-        cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"meta\",\"artist\":");
+        cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"meta\",\"metatype\":");
         cur += json_emit_quoted_str(cur, end - cur, "Artists");
         cur += json_emit_raw_str(cur, end - cur, "},");
-        cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"meta\",\"album\":");
+        cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"meta\",\"metatype\":");
         cur += json_emit_quoted_str(cur, end - cur, "Album");
         cur += json_emit_raw_str(cur, end - cur, "},");
     }
