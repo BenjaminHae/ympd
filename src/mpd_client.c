@@ -528,7 +528,6 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
               searchoption_ALBUM = searchoption;
               type_output = MPD_TAG_ARTIST;
             }
-            depthcount += 1;
             searchoption = strtok(NULL,delim);
             if (searchoption!=NULL){
               if (type_librarystart == MPD_TAG_ALBUM) {
@@ -537,7 +536,6 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
               else {
                 searchoption_ALBUM = searchoption;
               }
-              depthcount += 1;
               type_output = MPD_TAG_UNKNOWN;
             }
           }
@@ -678,6 +676,8 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
 
 int mpd_search_list_songs(char *buffer)
 {
+  int i = 0;
+  struct mpd_song *song;
   char *cur = buffer;
   const char *end = buffer + MAX_SIZE;
   cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"search\",\"data\":[ ");
@@ -709,10 +709,8 @@ int mpd_search_list_songs(char *buffer)
 
 int mpd_search(char *buffer, char *searchstr)
 {
-    int i = 0;
     char *cur = buffer;
     const char *end = buffer + MAX_SIZE;
-    struct mpd_song *song;
 
     if(mpd_search_db_songs(mpd.conn, false) == false)
         RETURN_ERROR_AND_RECOVER("mpd_search_db_songs");
