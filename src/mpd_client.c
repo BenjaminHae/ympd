@@ -572,6 +572,7 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
           type_librarystart = MPD_TAG_ARTIST;
         else
           type_librarystart = MPD_TAG_ALBUM;
+        type_output = type_librarystart;
         const char delim[2] = "/";
         char *searchoption = NULL;
         char *tmppath = NULL;
@@ -632,6 +633,8 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
           cur += json_emit_raw_str(cur, end  - cur, "{\"type\":\"browse\",\"data\":[ ");
           struct mpd_pair *pair;
           while ((pair = mpd_recv_pair_tag(mpd.conn, type_output)) != NULL) {
+            if (strlen(pair->value)==0)
+              continue;
             cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"");
             cur += json_emit_raw_str(cur, end - cur, outputString);
             cur += json_emit_raw_str(cur, end - cur, "\",\"name\":");
