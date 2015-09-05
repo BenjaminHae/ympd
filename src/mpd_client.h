@@ -107,6 +107,7 @@ int mpd_put_outputs(char *buffer, int putnames);
 int mpd_put_current_song(char *buffer);
 int mpd_put_queue(char *buffer, unsigned int offset);
 int mpd_put_browse(char *buffer, char *path, unsigned int offset);
+int mpd_search_list_songs(char *buffer);
 int mpd_search(char *buffer, char *searchstr);
 void mpd_disconnect();
 #endif
