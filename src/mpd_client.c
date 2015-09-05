@@ -556,10 +556,17 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
         //free(searchoption_ARTIST);
         //free(searchoption_ALBUM);
 
-        if (!mpd_search_commit(mpd.conn))
+        if (!mpd_search_commit(mpd.conn)){
             fprintf(stderr, "MPD mpd_search_commit: %s\n", mpd_connection_get_error_message(mpd.conn));
             mpd.conn_state = MPD_FAILURE;
+            return 0;
+        }
 
+        char *outputString;
+        if (type_output == MPD_TAG_ALBUM)
+          outputString = strdup("album");
+        else
+          outputString = strdup("artist");
         cur += json_emit_raw_str(cur, end  - cur, "{\"type\":\"browse\",\"data\":[ ");
         struct mpd_pair *pair;
         while ((pair = mpd_recv_pair_tag(mpd.conn, type_output)) != NULL) {
