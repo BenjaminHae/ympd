@@ -520,7 +520,6 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
         if (searchoption != NULL) {
           searchoption = strtok(NULL,delim);
           if (searchoption!=NULL) {
-            fprintf(stderr, "I'm here 526");
             if (type_librarystart == MPD_TAG_ARTIST) {
               searchoption_ARTIST = searchoption;
               type_output = MPD_TAG_ALBUM;
@@ -529,9 +528,7 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
               searchoption_ALBUM = searchoption;
               type_output = MPD_TAG_ARTIST;
             }
-            fprintf(stderr, "I'm here 535");
             searchoption = strtok(NULL,delim);
-            fprintf(stderr, "I'm here 537");
             if (searchoption!=NULL){
               if (type_librarystart == MPD_TAG_ALBUM) {
                 searchoption_ARTIST = searchoption;
@@ -544,7 +541,6 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
           }
         }
         //free tmppath?
-        fprintf(stderr, "I'm here 549");
         mpd_search_db_tags(mpd.conn, type_output);
         if (searchoption_ARTIST!=NULL){
           mpd_search_add_tag_constraint(mpd.conn, MPD_OPERATOR_DEFAULT,MPD_TAG_ARTIST,searchoption_ARTIST);
@@ -552,7 +548,6 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
         if (searchoption_ALBUM!=NULL){
           mpd_search_add_tag_constraint(mpd.conn, MPD_OPERATOR_DEFAULT,MPD_TAG_ALBUM,searchoption_ALBUM);
         }
-        fprintf(stderr, "I'm here 559");
         //free(searchoption_ARTIST);
         //free(searchoption_ALBUM);
 
@@ -570,7 +565,9 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
         cur += json_emit_raw_str(cur, end  - cur, "{\"type\":\"browse\",\"data\":[ ");
         struct mpd_pair *pair;
         while ((pair = mpd_recv_pair_tag(mpd.conn, type_output)) != NULL) {
-          cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"artist\",\"name\":");
+          cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"");
+          cur += json_emit_raw_str(cur, end - cur, outputString);
+          cur += json_emit_raw_str(cur, end - cur, "\",\"name\":");
           cur += json_emit_quoted_str(cur, end - cur, pair->value);
           cur += json_emit_raw_str(cur, end - cur, ",\"path\":");
           cur += json_emit_quoted_str(cur, end - cur, path);
