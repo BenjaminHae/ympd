@@ -524,19 +524,19 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
             if (type_librarystart == MPD_TAG_ARTIST) {
               searchoption_ARTIST = searchoption;
               type_output = MPD_TAG_ALBUM;
+              searchoption = strtok(NULL,delim);
+              if (searchoption!=NULL){
+                if (type_librarystart == MPD_TAG_ALBUM) {
+                  searchoption_ARTIST = searchoption;
+                }
+                else {
+                  searchoption_ALBUM = searchoption;
+                }
+                type_output = MPD_TAG_UNKNOWN;
+              }
             }
             else {
               searchoption_ALBUM = searchoption;
-              type_output = MPD_TAG_ARTIST;
-            }
-            searchoption = strtok(NULL,delim);
-            if (searchoption!=NULL){
-              if (type_librarystart == MPD_TAG_ALBUM) {
-                searchoption_ARTIST = searchoption;
-              }
-              else {
-                searchoption_ALBUM = searchoption;
-              }
               type_output = MPD_TAG_UNKNOWN;
             }
           }
