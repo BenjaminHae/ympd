@@ -304,7 +304,7 @@ function webSocketConnect() {
                                 else
                                   $icon='glyphicon-user';
                                 $('#salamisandwich > tbody').append(
-                                    "<tr uri=\"" + encodeURI(obj.data[item].metatype) + "\" class=\"dir\">" +
+                                    "<tr uri=\"$" + encodeURI(obj.data[item].metatype) + "\" class=\"dir\">" +
                                     "<td><span class=\"glyphicon " + $icon + "\"></span></td>" +
                                     "<td><a>" + basename(obj.data[item].metatype) + "</a></td>" +
                                     "<td></td><td></td></tr>"
@@ -312,7 +312,7 @@ function webSocketConnect() {
                                 break;
                             case "artist":
                                 $('#salamisandwich > tbody').append(
-                                    "<tr uri=\"" + obj.data[item].path + '/' + obj.data[item].name + "\" class=\"dir\">" +
+                                    "<tr uri=\"$" + obj.data[item].path + '/' + obj.data[item].name + "\" class=\"dir\">" +
                                     "<td><span class=\"glyphicon glyphicon-user\"></span></td>" +
                                     "<td><a>" + obj.data[item].name + "</a></td>" +
                                     "<td></td><td></td></tr>"
@@ -320,7 +320,7 @@ function webSocketConnect() {
                                 break;
                             case "album":
                                 $('#salamisandwich > tbody').append(
-                                    "<tr uri=\"" + obj.data[item].path + '/' + obj.data[item].name + "\" class=\"dir\">" +
+                                    "<tr uri=\"$" + obj.data[item].path + '/' + obj.data[item].name + "\" class=\"dir\">" +
                                     "<td><span class=\"glyphicon glyphicon-record\"></span></td>" +
                                     "<td><a>" + obj.data[item].name + "</a></td>" +
                                     "<td></td><td></td></tr>"
@@ -349,7 +349,7 @@ function webSocketConnect() {
 
                     $('#salamisandwich > tbody > tr').on({
                         mouseenter: function() {
-                            if($(this).is(".dir")) 
+                            if($(this).is(".dir"))
                                 appendClickableIcon($(this), 'MPD_API_ADD_TRACK', 'plus');
                             else if($(this).is(".song"))
                                 appendClickableIcon($(this), 'MPD_API_ADD_PLAY_TRACK', 'play');

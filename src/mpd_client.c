@@ -565,12 +565,17 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
     struct mpd_entity *entity;
     unsigned int entity_count = 0;
     
-    if((strncmp(path, "Artist", strlen("Artist")) == 0) || (strncmp(path, "Album", strlen("Album")) == 0)) {
-        enum mpd_tag_type type_librarystart = MPD_TAG_ARTIST;
+    static const char ARTIST[] = "Artist";
+    static const char ALBUM[] = "Album";
+    static const char IDENTIFIER = "$";
+    
+    if(strncmp(path, IDENTIFIER, strlen(IDENTIFIER)) == 0) {
+        path ++;
+        enum mpd_tag_type type_librarystart = MPD_TAG_UNKNOWN;
         enum mpd_tag_type type_output = MPD_TAG_ARTIST;
-        if (strncmp(path, "Artist", strlen("Artist")) == 0)
+        if (strncmp(path, ARTIST, strlen(ARTIST)) == 0)
           type_librarystart = MPD_TAG_ARTIST;
-        else
+        else if (strncmp(path, ALBUM, strlen(ALBUM)) == 0)
           type_librarystart = MPD_TAG_ALBUM;
         type_output = type_librarystart;
         const char delim[2] = "/";
@@ -669,10 +674,10 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
     cur += json_emit_raw_str(cur, end  - cur, "{\"type\":\"browse\",\"data\":[ ");
     if(strcmp(path, "/") == 0) {
         cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"meta\",\"metatype\":");
-        cur += json_emit_quoted_str(cur, end - cur, "Artists");
+        cur += json_emit_quoted_str(cur, end - cur, ARTIST);
         cur += json_emit_raw_str(cur, end - cur, "},");
         cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"meta\",\"metatype\":");
-        cur += json_emit_quoted_str(cur, end - cur, "Album");
+        cur += json_emit_quoted_str(cur, end - cur, ALBUM);
         cur += json_emit_raw_str(cur, end - cur, "},");
     }
     while((entity = mpd_recv_entity(mpd.conn)) != NULL) {
