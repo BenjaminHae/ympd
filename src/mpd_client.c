@@ -569,7 +569,7 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
     static const char ALBUM[] = "Album";
     static const char IDENTIFIER = '$';
     
-    if(strncmp(path, IDENTIFIER, 1) == 0) {
+    if(path[0] == IDENTIFIER) {
         path ++;
         enum mpd_tag_type type_librarystart = MPD_TAG_UNKNOWN;
         enum mpd_tag_type type_output = MPD_TAG_ARTIST;
