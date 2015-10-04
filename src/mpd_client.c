@@ -557,7 +557,35 @@ int mpd_put_queue(char *buffer, unsigned int offset)
     return cur - buffer;
 }
 
-
+void mpd_parse_meta_path(char* searchoption, mpd_tag_type* type_output, mpd_tag_type* type_librarystart)
+{
+    const char delim[2] = "/";
+    searchoption = strtok(searchoption,delim);
+    if (searchoption != NULL) {
+        searchoption = strtok(NULL,delim);
+        if (searchoption!=NULL) {
+            if (type_librarystart == MPD_TAG_ARTIST) {
+                searchoption_ARTIST = searchoption;
+                type_output = MPD_TAG_ALBUM;
+                searchoption = strtok(NULL,delim);
+                if (searchoption!=NULL){
+                    if (type_librarystart == MPD_TAG_ALBUM) {
+                      searchoption_ARTIST = searchoption;
+                    }
+                    else {
+                      searchoption_ALBUM = searchoption;
+                    }
+                    type_output = MPD_TAG_UNKNOWN;
+                }
+            }
+            else {
+                searchoption_ALBUM = searchoption;
+                type_output = MPD_TAG_UNKNOWN;
+            }
+        }
+    }
+    //free searchoption?
+}
 int mpd_put_browse(char *buffer, char *path, unsigned int offset)
 {
     char *cur = buffer;
@@ -578,37 +606,10 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
         else if (strncmp(path, ALBUM, strlen(ALBUM)) == 0)
           type_librarystart = MPD_TAG_ALBUM;
         type_output = type_librarystart;
-        const char delim[2] = "/";
-        char *searchoption = NULL;
-        char *tmppath = NULL;
         char *searchoption_ARTIST = NULL;
         char *searchoption_ALBUM = NULL;
-        tmppath = strdup(path);
-        searchoption = strtok(tmppath,delim);//first entry is artist/album so not interesting
-        if (searchoption != NULL) {
-          searchoption = strtok(NULL,delim);
-          if (searchoption!=NULL) {
-            if (type_librarystart == MPD_TAG_ARTIST) {
-              searchoption_ARTIST = searchoption;
-              type_output = MPD_TAG_ALBUM;
-              searchoption = strtok(NULL,delim);
-              if (searchoption!=NULL){
-                if (type_librarystart == MPD_TAG_ALBUM) {
-                  searchoption_ARTIST = searchoption;
-                }
-                else {
-                  searchoption_ALBUM = searchoption;
-                }
-                type_output = MPD_TAG_UNKNOWN;
-              }
-            }
-            else {
-              searchoption_ALBUM = searchoption;
-              type_output = MPD_TAG_UNKNOWN;
-            }
-          }
-        }
-        //free tmppath?
+        mpd_parse_meta_path(strdup(path),&type_output,&type_librarystart)
+        
         if (type_output != MPD_TAG_UNKNOWN) {
           mpd_search_db_tags(mpd.conn, type_output);
         }
