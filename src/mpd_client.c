@@ -566,7 +566,7 @@ void mpd_parse_meta_path(char* searchoption, mpd_tag_type* type_output, mpd_tag_
         if (searchoption!=NULL) {
             if (type_librarystart == MPD_TAG_ARTIST) {
                 *searchoption_ARTIST = searchoption;
-                type_output = MPD_TAG_ALBUM;
+                *type_output = MPD_TAG_ALBUM;
                 searchoption = strtok(NULL,delim);
                 if (searchoption!=NULL){
                     if (type_librarystart == MPD_TAG_ALBUM) {
