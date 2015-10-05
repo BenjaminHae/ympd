@@ -179,9 +179,10 @@ add_search_tracks:
             }
             struct mpd_song *song;
             while((song = mpd_recv_song(mpd.conn)) != NULL) {
-              mpd_run_add(mpd.conn, mpd_song_get_uri(song));
+              mpd_send_add(mpd.conn, mpd_song_get_uri(song));
               mpd_song_free(song);
             }
+            mpd_response_finish(mpd.conn);
 out_add_track:
             free(p_charbuf);
             break;
