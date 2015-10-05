@@ -557,30 +557,31 @@ int mpd_put_queue(char *buffer, unsigned int offset)
     return cur - buffer;
 }
 
-void mpd_parse_meta_path(char* searchoption, mpd_tag_type* type_output, mpd_tag_type* type_librarystart, char** searchoption_ARTIST, char** searchoption_ALBUM)
+void mpd_parse_meta_path(char* path, mpd_tag_type* type_output, mpd_tag_type* type_librarystart, char** searchoption_ARTIST, char** searchoption_ALBUM)
 {
     const char delim[2] = "/";
+    char *searchoption=strdup(path);
     searchoption = strtok(searchoption,delim);
     if (searchoption != NULL) {
         searchoption = strtok(NULL,delim);
         if (searchoption!=NULL) {
-            if (type_librarystart == MPD_TAG_ARTIST) {
+            if (*type_librarystart == MPD_TAG_ARTIST) {
                 *searchoption_ARTIST = searchoption;
                 *type_output = MPD_TAG_ALBUM;
                 searchoption = strtok(NULL,delim);
                 if (searchoption!=NULL){
-                    if (type_librarystart == MPD_TAG_ALBUM) {
+                    if (*type_librarystart == MPD_TAG_ALBUM) {
                         *searchoption_ARTIST = searchoption;
                     }
                     else {
                         *searchoption_ALBUM = searchoption;
                     }
-                    type_output = MPD_TAG_UNKNOWN;
+                    *type_output = MPD_TAG_UNKNOWN;
                 }
             }
             else {
                 *searchoption_ALBUM = searchoption;
-                type_output = MPD_TAG_UNKNOWN;
+                type_output* = MPD_TAG_UNKNOWN;
             }
         }
     }
@@ -609,7 +610,7 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
         type_output = type_librarystart;
         char *searchoption_ARTIST = NULL;
         char *searchoption_ALBUM = NULL;
-        mpd_parse_meta_path(strdup(path),&type_output,&type_librarystart,&searchoption_ARTIST,&searchoption_ALBUM);
+        mpd_parse_meta_path(path,&type_output,&type_librarystart,&searchoption_ARTIST,&searchoption_ALBUM);
         
         if (type_output != MPD_TAG_UNKNOWN) {
           mpd_search_db_tags(mpd.conn, type_output);
