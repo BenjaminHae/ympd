@@ -581,7 +581,7 @@ void mpd_parse_meta_path(char* path, enum mpd_tag_type *type_output, enum mpd_ta
             }
             else {
                 *searchoption_ALBUM = searchoption;
-                type_output* = MPD_TAG_UNKNOWN;
+                *type_output = MPD_TAG_UNKNOWN;
             }
         }
     }
