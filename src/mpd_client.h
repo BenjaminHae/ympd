@@ -106,7 +106,7 @@ int mpd_put_state(char *buffer, int *current_song_id, unsigned *queue_version);
 int mpd_put_outputs(char *buffer, int putnames);
 int mpd_put_current_song(char *buffer);
 int mpd_put_queue(char *buffer, unsigned int offset);
-void mpd_parse_meta_path(char* path, enum mpd_tag_type* type_output, char** searchoption_ARTIST, char** searchoption_ALBUM);
+void mpd_parse_meta_path(char* path, enum mpd_tag_type *type_output, char** searchoption_ARTIST, char** searchoption_ALBUM);
 int mpd_prepare_search(enum mpd_tag_type type_output, char* searchoption_ARTIST, char* searchoption_ALBUM);
 int mpd_put_browse(char *buffer, char *path, unsigned int offset);
 int mpd_search_list_songs(char *buffer);

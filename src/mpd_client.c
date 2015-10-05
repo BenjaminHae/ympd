@@ -167,7 +167,14 @@ add_search_tracks:
             char *searchoption_ARTIST = NULL;
             char *searchoption_ALBUM = NULL;
             mpd_parse_meta_path(token, &type_output, &searchoption_ARTIST, &searchoption_ALBUM);
-            mpd_prepare_search(type_output, searchoption_ARTIST, searchoption_ALBUM);
+            switch (mpd_prepare_search(type_output, searchoption_ARTIST, searchoption_ALBUM))
+            {
+                case 0: break;
+                case -2:fprintf(stderr, "MPD X: %s\n", mpd_connection_get_error_message(mpd.conn)); 
+                        if (!mpd_connection_clear_error(mpd.conn))
+                            mpd.conn_state = MPD_FAILURE;
+                default: goto out_add_track;
+            }
             struct mpd_song *song;
             while((song = mpd_recv_song(mpd.conn)) != NULL) {
               mpd_run_add(mpd.conn, mpd_song_get_uri(song));
@@ -610,14 +617,14 @@ void mpd_parse_meta_path(char* path, enum mpd_tag_type *type_output, char** sear
     }
     //free searchoption?
 }
-void mpd_prepare_search(enum mpd_tag_type type_output, char* searchoption_ARTIST, char* searchoption_ALBUM)
+int mpd_prepare_search(enum mpd_tag_type type_output, char* searchoption_ARTIST, char* searchoption_ALBUM)
 {
     if (type_output != MPD_TAG_UNKNOWN) {
       mpd_search_db_tags(mpd.conn, type_output);
     }
     else{
       if(mpd_search_db_songs(mpd.conn, false) == false)
-        RETURN_ERROR_AND_RECOVER("mpd_search_db_songs(browse)");
+        return -2;
     }
     if (searchoption_ARTIST!=NULL){
       mpd_search_add_tag_constraint(mpd.conn, MPD_OPERATOR_DEFAULT, MPD_TAG_ARTIST, searchoption_ARTIST);
@@ -646,8 +653,12 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
         char *searchoption_ARTIST = NULL;
         char *searchoption_ALBUM = NULL;
         mpd_parse_meta_path(path, &type_output, &searchoption_ARTIST, &searchoption_ALBUM);
-        if (mpd_prepare_search(type_output, searchoption_ARTIST, searchoption_ALBUM)!=0)
-            return 0;
+        switch (mpd_prepare_search(type_output, searchoption_ARTIST, searchoption_ALBUM))
+        {
+            case 0: break;
+            case -2: RETURN_ERROR_AND_RECOVER("mpd_search_db_songs(browse)"); break;
+            default: return 0;
+        }
 
         if (type_output != MPD_TAG_UNKNOWN) {
           char *outputType;
