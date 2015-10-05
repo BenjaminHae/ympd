@@ -162,10 +162,10 @@ out_browse:
             mpd_run_add(mpd.conn, token);
             goto out_add_track;
 add_search_tracks:
+            token++;
             enum mpd_tag_type type_output;
             char *searchoption_ARTIST = NULL;
             char *searchoption_ALBUM = NULL;
-            token++;
             mpd_parse_meta_path(token, &type_output, &searchoption_ARTIST, &searchoption_ALBUM);
             mpd_prepare_search(type_output, searchoption_ARTIST, searchoption_ALBUM);
             struct mpd_song *song;
