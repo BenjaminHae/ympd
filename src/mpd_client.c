@@ -557,7 +557,7 @@ int mpd_put_queue(char *buffer, unsigned int offset)
     return cur - buffer;
 }
 
-void mpd_parse_meta_path(char* path, enum mpd_tag_type* type_output, enum mpd_tag_type* type_librarystart, char** searchoption_ARTIST, char** searchoption_ALBUM)
+void mpd_parse_meta_path(char* path, enum mpd_tag_type *type_output, enum mpd_tag_type *type_librarystart, char** searchoption_ARTIST, char** searchoption_ALBUM)
 {
     const char delim[2] = "/";
     char *searchoption=strdup(path);
@@ -586,7 +586,6 @@ void mpd_parse_meta_path(char* path, enum mpd_tag_type* type_output, enum mpd_ta
         }
     }
     //free searchoption?
-    return 0;
 }
 int mpd_put_browse(char *buffer, char *path, unsigned int offset)
 {
