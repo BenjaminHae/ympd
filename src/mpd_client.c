@@ -637,7 +637,7 @@ int mpd_prepare_search(enum mpd_tag_type type_output, char* searchoption_ARTIST,
     }
     if (have_constraints == 0) {
         mpd_search_cancel(mpd.conn);
-        return -1;
+        return -3;
     }
     if (!mpd_search_commit(mpd.conn)) {
         fprintf(stderr, "MPD mpd_search_commit: %s\n", mpd_connection_get_error_message(mpd.conn));
@@ -659,14 +659,12 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
         char *searchoption_ARTIST = NULL;
         char *searchoption_ALBUM = NULL;
         mpd_parse_meta_path(path, &type_output, &searchoption_ARTIST, &searchoption_ALBUM);
-        if (!((searchoption_ARTIST == NULL) && (searchoption_ALBUM == NULL)))
+        switch (mpd_prepare_search(type_output, searchoption_ARTIST, searchoption_ALBUM))
         {
-            switch (mpd_prepare_search(type_output, searchoption_ARTIST, searchoption_ALBUM))
-            {
-                case 0: break;
-                case -2: RETURN_ERROR_AND_RECOVER("mpd_search_db_songs(browse)"); break;
-                default: return 0;
-            }
+            case 0: break;
+            case -2: RETURN_ERROR_AND_RECOVER("mpd_search_db_songs(browse)"); break;
+            case -3: break;
+            default: return 0;
         }
         if (type_output != MPD_TAG_UNKNOWN) {
           char *outputType;
