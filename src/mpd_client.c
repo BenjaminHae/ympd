@@ -659,13 +659,15 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
         char *searchoption_ARTIST = NULL;
         char *searchoption_ALBUM = NULL;
         mpd_parse_meta_path(path, &type_output, &searchoption_ARTIST, &searchoption_ALBUM);
-        switch (mpd_prepare_search(type_output, searchoption_ARTIST, searchoption_ALBUM))
+        if (!((searchoption_ARTIST == NULL) && (searchoption_ALBUM == NULL)))
         {
-            case 0: break;
-            case -2: RETURN_ERROR_AND_RECOVER("mpd_search_db_songs(browse)"); break;
-            default: return 0;
+            switch (mpd_prepare_search(type_output, searchoption_ARTIST, searchoption_ALBUM))
+            {
+                case 0: break;
+                case -2: RETURN_ERROR_AND_RECOVER("mpd_search_db_songs(browse)"); break;
+                default: return 0;
+            }
         }
-
         if (type_output != MPD_TAG_UNKNOWN) {
           char *outputType;
           if (type_output == MPD_TAG_ALBUM)
