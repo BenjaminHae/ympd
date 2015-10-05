@@ -29,6 +29,9 @@
 
 /* forward declaration */
 static int mpd_notify_callback(struct mg_connection *c, enum mg_event ev);
+static const char ARTIST[] = "Artist";
+static const char ALBUM[] = "Album";
+static const char IDENTIFIER = '$';
 
 const char * mpd_cmd_strs[] = {
     MPD_CMDS(GEN_STR)
@@ -154,8 +157,22 @@ out_browse:
 
             if((token = strtok(NULL, ",")) == NULL)
                 goto out_add_track;
-
+            if (token[0]==IDENTIFIER)
+                goto add_search_tracks;
             mpd_run_add(mpd.conn, token);
+            goto out_add_track;
+add_search_tracks:
+            enum mpd_tag_type type_output;
+            char *searchoption_ARTIST = NULL;
+            char *searchoption_ALBUM = NULL;
+            token++;
+            mpd_parse_meta_path(token, &type_output, &searchoption_ARTIST, &searchoption_ALBUM);
+            mpd_prepare_search(type_output, searchoption_ARTIST, searchoption_ALBUM);
+            struct mpd_song *song;
+            while((song = mpd_recv_song(mpd.conn)) != NULL) {
+              mpd_run_add(mpd.conn, mpd_song_get_uri(song));
+              mpd_song_free(song);
+            }
 out_add_track:
             free(p_charbuf);
             break;
@@ -557,20 +574,26 @@ int mpd_put_queue(char *buffer, unsigned int offset)
     return cur - buffer;
 }
 
-void mpd_parse_meta_path(char* path, enum mpd_tag_type *type_output, enum mpd_tag_type *type_librarystart, char** searchoption_ARTIST, char** searchoption_ALBUM)
+void mpd_parse_meta_path(char* path, enum mpd_tag_type *type_output, char** searchoption_ARTIST, char** searchoption_ALBUM)
 {
+    enum mpd_tag_type type_librarystart = MPD_TAG_UNKNOWN;
+    if (strncmp(path, ARTIST, strlen(ARTIST)) == 0)
+      type_librarystart = MPD_TAG_ARTIST;
+    else if (strncmp(path, ALBUM, strlen(ALBUM)) == 0)
+      type_librarystart = MPD_TAG_ALBUM;
+    *type_output = type_librarystart;
     const char delim[2] = "/";
     char *searchoption=strdup(path);
     searchoption = strtok(searchoption,delim);
     if (searchoption != NULL) {
         searchoption = strtok(NULL,delim);
         if (searchoption!=NULL) {
-            if (*type_librarystart == MPD_TAG_ARTIST) {
+            if (type_librarystart == MPD_TAG_ARTIST) {
                 *searchoption_ARTIST = searchoption;
                 *type_output = MPD_TAG_ALBUM;
                 searchoption = strtok(NULL,delim);
                 if (searchoption!=NULL){
-                    if (*type_librarystart == MPD_TAG_ALBUM) {
+                    if (type_librarystart == MPD_TAG_ALBUM) {
                         *searchoption_ARTIST = searchoption;
                     }
                     else {
@@ -587,6 +610,29 @@ void mpd_parse_meta_path(char* path, enum mpd_tag_type *type_output, enum mpd_ta
     }
     //free searchoption?
 }
+void mpd_prepare_search(enum mpd_tag_type type_output, char* searchoption_ARTIST, char* searchoption_ALBUM)
+{
+    if (type_output != MPD_TAG_UNKNOWN) {
+      mpd_search_db_tags(mpd.conn, type_output);
+    }
+    else{
+      if(mpd_search_db_songs(mpd.conn, false) == false)
+        RETURN_ERROR_AND_RECOVER("mpd_search_db_songs(browse)");
+    }
+    if (searchoption_ARTIST!=NULL){
+      mpd_search_add_tag_constraint(mpd.conn, MPD_OPERATOR_DEFAULT, MPD_TAG_ARTIST, searchoption_ARTIST);
+    }
+    if (searchoption_ALBUM!=NULL) {
+      mpd_search_add_tag_constraint(mpd.conn, MPD_OPERATOR_DEFAULT, MPD_TAG_ALBUM, searchoption_ALBUM);
+    }
+
+    if (!mpd_search_commit(mpd.conn)) {
+        fprintf(stderr, "MPD mpd_search_commit: %s\n", mpd_connection_get_error_message(mpd.conn));
+        mpd.conn_state = MPD_FAILURE;
+        return -1;
+    }
+    return 0;
+}
 int mpd_put_browse(char *buffer, char *path, unsigned int offset)
 {
     char *cur = buffer;
@@ -594,49 +640,21 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
     struct mpd_entity *entity;
     unsigned int entity_count = 0;
     
-    static const char ARTIST[] = "Artist";
-    static const char ALBUM[] = "Album";
-    static const char IDENTIFIER = '$';
-    
     if(path[0] == IDENTIFIER) {
         path ++;
-        enum mpd_tag_type type_librarystart = MPD_TAG_UNKNOWN;
-        enum mpd_tag_type type_output = MPD_TAG_ARTIST;
-        if (strncmp(path, ARTIST, strlen(ARTIST)) == 0)
-          type_librarystart = MPD_TAG_ARTIST;
-        else if (strncmp(path, ALBUM, strlen(ALBUM)) == 0)
-          type_librarystart = MPD_TAG_ALBUM;
-        type_output = type_librarystart;
+        enum mpd_tag_type type_output;
         char *searchoption_ARTIST = NULL;
         char *searchoption_ALBUM = NULL;
-        mpd_parse_meta_path(path,&type_output,&type_librarystart,&searchoption_ARTIST,&searchoption_ALBUM);
-        
-        if (type_output != MPD_TAG_UNKNOWN) {
-          mpd_search_db_tags(mpd.conn, type_output);
-        }
-        else{
-          if(mpd_search_db_songs(mpd.conn, false) == false)
-            RETURN_ERROR_AND_RECOVER("mpd_search_db_songs(browse)");
-        }
-        if (searchoption_ARTIST!=NULL){
-          mpd_search_add_tag_constraint(mpd.conn, MPD_OPERATOR_DEFAULT,MPD_TAG_ARTIST,searchoption_ARTIST);
-        }
-        if (searchoption_ALBUM!=NULL) {
-          mpd_search_add_tag_constraint(mpd.conn, MPD_OPERATOR_DEFAULT,MPD_TAG_ALBUM,searchoption_ALBUM);
-        }
-
-        if (!mpd_search_commit(mpd.conn)) {
-            fprintf(stderr, "MPD mpd_search_commit: %s\n", mpd_connection_get_error_message(mpd.conn));
-            mpd.conn_state = MPD_FAILURE;
+        mpd_parse_meta_path(path, &type_output, &searchoption_ARTIST, &searchoption_ALBUM);
+        if (mpd_prepare_search(type_output, searchoption_ARTIST, searchoption_ALBUM)!=0)
             return 0;
-        }
 
         if (type_output != MPD_TAG_UNKNOWN) {
-          char *outputString;
+          char *outputType;
           if (type_output == MPD_TAG_ALBUM)
-            outputString = strdup("album");
-          else
-            outputString = strdup("artist");
+            outputType = strdup("album");
+          else if (type_output == MPD_TAG_ARTIST)
+            outputType = strdup("artist");
           cur += json_emit_raw_str(cur, end  - cur, "{\"type\":\"browse\",\"data\":[ ");
           struct mpd_pair *pair;
           while ((pair = mpd_recv_pair_tag(mpd.conn, type_output)) != NULL) {
@@ -645,7 +663,7 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
               continue;
             }
             cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"");
-            cur += json_emit_raw_str(cur, end - cur, outputString);
+            cur += json_emit_raw_str(cur, end - cur, outputType);
             cur += json_emit_raw_str(cur, end - cur, "\",\"name\":");
             cur += json_emit_quoted_str(cur, end - cur, pair->value);
             cur += json_emit_raw_str(cur, end - cur, ",\"path\":");
@@ -654,7 +672,7 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
             
             mpd_return_pair(mpd.conn, pair);
           }
-          free(outputString);
+          free(outputType);
           /* remove last ',' */
           cur--;
 
