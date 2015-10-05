@@ -626,13 +626,19 @@ int mpd_prepare_search(enum mpd_tag_type type_output, char* searchoption_ARTIST,
       if(mpd_search_db_songs(mpd.conn, false) == false)
         return -2;
     }
+    int have_constraints = 0;
     if (searchoption_ARTIST!=NULL){
       mpd_search_add_tag_constraint(mpd.conn, MPD_OPERATOR_DEFAULT, MPD_TAG_ARTIST, searchoption_ARTIST);
+      have_constraints++;
     }
     if (searchoption_ALBUM!=NULL) {
       mpd_search_add_tag_constraint(mpd.conn, MPD_OPERATOR_DEFAULT, MPD_TAG_ALBUM, searchoption_ALBUM);
+      have_constraints++;
     }
-
+    if (have_constraints == 0) {
+        mpd_search_cancel(mpd.conn);
+        return -1;
+    }
     if (!mpd_search_commit(mpd.conn)) {
         fprintf(stderr, "MPD mpd_search_commit: %s\n", mpd_connection_get_error_message(mpd.conn));
         mpd.conn_state = MPD_FAILURE;
