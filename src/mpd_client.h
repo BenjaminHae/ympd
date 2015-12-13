@@ -65,7 +65,8 @@
     X(MPD_API_TOGGLE_CONSUME) \
     X(MPD_API_TOGGLE_SINGLE) \
     X(MPD_API_TOGGLE_CROSSFADE) \
-    X(MPD_API_TOGGLE_REPEAT)
+    X(MPD_API_TOGGLE_REPEAT) \
+    X(MPD_DOWNLOAD)
 
 enum mpd_cmd_ids {
     MPD_CMDS(GEN_ENUM)
@@ -83,6 +84,7 @@ struct t_mpd {
     int port;
     char host[128];
     char *password;
+    char *music_path;
 
     struct mpd_connection *conn;
     enum mpd_conn_states conn_state;
@@ -112,6 +114,7 @@ int mpd_prepare_search(enum mpd_tag_type type_output, char* searchoption_ARTIST,
 int mpd_put_browse(char *buffer, char *path, unsigned int offset);
 int mpd_search_list_songs(char *buffer);
 int mpd_search(char *buffer, char *searchstr);
+int mpd_download(char *buffer, char *path, char *url);
 void mpd_disconnect();
 #endif
 
